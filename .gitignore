@@ -1,0 +1,38 @@
+# ── Build output ──────────────────────────────────────────────────────────────
+bin/
+obj/
+Releases/
+
+# ── Local developer settings (machine-specific paths) ─────────────────────────
+Properties/localSettings.props
+
+# ── Rider / JetBrains ─────────────────────────────────────────────────────────
+.idea/
+*.sln.iml
+
+# ── Visual Studio ─────────────────────────────────────────────────────────────
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# ── VS Code ───────────────────────────────────────────────────────────────────
+.vscode/
+
+# ── SourceTree / Atlassian ────────────────────────────────────────────────────
+.git/sourcetreeconfig.json
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db
+Desktop.ini
+
+# ── Dependency DLLs ───────────────────────────────────────────────────────────
+# Vendored DLLs in deps/ are intentionally committed so the project can be
+# built without a full game install for CI or contributors who only have one
+# game version installed.  If you prefer not to commit them, uncomment below:
+# deps/**/*.dll

@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    COHandbookDecimalFix — Vintage Story 1.21.x build
+    ──────────────────────────────────────────────────
+    .NET target  : net8.0   (VS 1.21 ships with .NET 8)
+    overhaullib  : >= 1.21.0
+
+    All shared logic (output paths, references, modinfo, zip) lives in
+    Common.Build.targets.  Only version-specific declarations belong here.
+
+    To build:
+      dotnet build COHandbookDecimalFix_1.21.csproj
+      dotnet build COHandbookDecimalFix_1.21.csproj -c Release   ← also zips
+  -->
+
+  <!-- ── VS version label ──────────────────────────────────────────────────── -->
+  <PropertyGroup>
+    <VSVersion>1.21</VSVersion>
+  </PropertyGroup>
+
+  <!-- ── Target framework ──────────────────────────────────────────────────── -->
+  <PropertyGroup>
+    <!-- VS 1.21.x targets .NET 8. Install SDK: https://dotnet.microsoft.com/download/dotnet/8.0 -->
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- ── Mod dependency (controls modinfo.json "dependencies" block) ────────── -->
+  <ItemGroup>
+    <Dependencies Include="overhaullib" Version="1.21.0" />
+  </ItemGroup>
+
+  <!--
+    ── Game & overhaullib path resolution ────────────────────────────────────
+    Priority (first non-empty wins):
+      1. GameDirectory_1_21 / OverhaulLibDir_1_21  from localSettings.props
+      2. VINTAGE_STORY_1_21                         environment variable
+      3. VINTAGE_STORY                              environment variable (global fallback)
+    OverhaulLibDir falls back to $(GameDirectory)/Mods/overhaullib in Common.Build.targets.
+    The vendored DLL in deps/overhaullib-1.21/ is the last-resort fallback.
+  -->
+  <PropertyGroup>
+    <GameDirectory Condition="'$(GameDirectory_1_21)' != ''">$(GameDirectory_1_21)</GameDirectory>
+    <GameDirectory Condition="'$(GameDirectory)' == '' and '$(VINTAGE_STORY_1_21)' != ''">$(VINTAGE_STORY_1_21)</GameDirectory>
+    <GameDirectory Condition="'$(GameDirectory)' == ''">$(VINTAGE_STORY)</GameDirectory>
+
+    <OverhaulLibDir Condition="'$(OverhaulLibDir_1_21)' != ''">$(OverhaulLibDir_1_21)</OverhaulLibDir>
+    <!-- Final fallback: bundled DLL in repo -->
+    <OverhaulLibDir Condition="'$(OverhaulLibDir)' == ''">$(MSBuildProjectDirectory)/deps/overhaullib-1.21</OverhaulLibDir>
+  </PropertyGroup>
+
+  <!-- ── Shared build logic ────────────────────────────────────────────────── -->
+  <Import Project="Common.Build.targets" />
+
+</Project>

@@ -1,0 +1,53 @@
+<Project>
+
+  <!--
+    ══════════════════════════════════════════════════════════════════════════
+    Directory.Build.props — shared mod identity & build settings
+    Imported automatically by MSBuild before every .csproj in this folder.
+    ══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- ── Mod identity ─────────────────────────────────────────────────────── -->
+  <PropertyGroup>
+    <ModName>CO Handbook Decimal Fix</ModName>
+    <ModType>code</ModType>
+    <ModVersion>1.0.0</ModVersion>
+    <ModId>cohandbookdecimalfix</ModId>
+    <Description>Fixes Combat Overhaul weapon handbook display incorrectly rounding decimal damage and tier values to integers.</Description>
+    <Side>client</Side>
+    <RequiredOnClient>true</RequiredOnClient>
+    <RequiredOnServer>false</RequiredOnServer>
+  </PropertyGroup>
+
+  <!-- ── Authors ───────────────────────────────────────────────────────────── -->
+  <ItemGroup>
+    <ModInfoAuthors Include="Arkzenir" />
+  </ItemGroup>
+
+  <!-- ── Shared compiler settings ─────────────────────────────────────────── -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- ── Shared paths ──────────────────────────────────────────────────────── -->
+  <PropertyGroup>
+    <ProjectDir>$(MSBuildProjectDirectory)</ProjectDir>
+    <AssetsDir>$(ProjectDir)/resources/assets</AssetsDir>
+    <!--
+      Drop any extra DLLs (e.g. optional soft-dependency assemblies) into
+      the /external folder and they will be referenced automatically.
+    -->
+    <ExternalLibDir>$(ProjectDir)/external</ExternalLibDir>
+  </PropertyGroup>
+
+  <!-- ── Local path overrides ──────────────────────────────────────────────── -->
+  <!--
+    Copy Properties/localSettings.props.template to Properties/localSettings.props
+    and fill in your own machine paths.  The file is git-ignored.
+  -->
+  <Import Project="Properties/localSettings.props"
+          Condition="Exists('Properties/localSettings.props')" />
+
+</Project>

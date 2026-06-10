@@ -1,0 +1,106 @@
+<Project>
+
+  <!--
+    ══════════════════════════════════════════════════════════════════════════
+    Common.Build.targets
+    Shared MSBuild logic for every COHandbookDecimalFix_<vsver>.csproj.
+
+    Each csproj must define BEFORE importing this file (via Directory.Build.props
+    or its own PropertyGroup):
+      $(VSVersion)          — e.g. 1.21 or 1.22
+      $(TargetFramework)    — e.g. net8.0 or net10.0
+      <Dependencies>        — one or more MSBuild items with Version metadata
+
+    Everything else (output paths, game path resolution, references,
+    modinfo generation, asset linking, zip packaging) lives here.
+    ══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- ── Output paths (versioned so both builds coexist) ──────────────────── -->
+  <PropertyGroup>
+    <OutputDir>bin/$(Configuration)/$(VSVersion)/Mods</OutputDir>
+    <OutputPath>$(OutputDir)/$(ModId)</OutputPath>
+  </PropertyGroup>
+
+  <!-- ── Game installation path resolution ────────────────────────────────── -->
+  <!--
+    GameDirectory and OverhaulLibDir are resolved in each .csproj before this
+    file is imported, using explicit per-version properties from localSettings.props
+    and environment variable fallbacks.  Here we only apply the final fallback
+    for OverhaulLibDir in case neither csproj nor env set it.
+  -->
+  <PropertyGroup>
+    <OverhaulLibDir Condition="'$(OverhaulLibDir)' == ''">$(GameDirectory)/Mods/overhaullib</OverhaulLibDir>
+  </PropertyGroup>
+
+  <!-- ── Assembly references ───────────────────────────────────────────────── -->
+  <ItemGroup>
+    <Reference Include="VintagestoryAPI" HintPath="$(GameDirectory)/VintagestoryAPI.dll"     Private="false" />
+    <Reference Include="VSEssentials"    HintPath="$(GameDirectory)/Mods/VSEssentials.dll"   Private="false" />
+    <Reference Include="0Harmony"        HintPath="$(GameDirectory)/Lib/0Harmony.dll"         Private="false" />
+    <Reference Include="overhaullib"     HintPath="$(OverhaulLibDir)/overhaullib.dll"          Private="false" />
+    <!-- Any extra DLLs dropped into the /external folder are picked up automatically -->
+    <Reference Include="$(ExternalLibDir)/**/*.dll" Private="false"
+               Condition="Exists('$(ExternalLibDir)')" />
+  </ItemGroup>
+
+  <!-- ── Generate modinfo.json ─────────────────────────────────────────────── -->
+  <Target Name="GenerateModInfo" BeforeTargets="Build">
+    <PropertyGroup>
+      <ModInfoContent>
+        {
+        "type": "$(ModType)",
+        "name": "$(ModName)",
+        "modid": "$(ModId)",
+        "version": "$(ModVersion)",
+        "description": "$(Description)",
+        "authors": [ @(ModInfoAuthors->'&quot;%(Identity)&quot;', ', ') ],
+        "dependencies": {
+        @(Dependencies->'&quot;%(Identity)&quot;: &quot;%(Version)&quot;', ', ')
+        },
+        "side": "$(Side)",
+        "requiredOnClient": $(RequiredOnClient),
+        "requiredOnServer": $(RequiredOnServer)
+        }
+      </ModInfoContent>
+    </PropertyGroup>
+    <MakeDir Directories="$(OutputPath)" />
+    <WriteLinesToFile File="$(OutputPath)/modinfo.json"
+                      Lines="$(ModInfoContent)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <!-- ── Symlink assets into output folder ─────────────────────────────────── -->
+  <!--
+    A symlink means you never copy assets during development — edits to
+    resources/ are immediately visible to the game without a rebuild.
+  -->
+  <Target Name="LinkAssets" AfterTargets="GenerateModInfo" BeforeTargets="Build">
+    <RemoveDir Directories="$(OutputPath)/assets" />
+    <Exec Condition="'$(OS)' == 'Windows_NT'"
+          Command="mklink /D &quot;$(OutputPath)\assets&quot; &quot;$(AssetsDir)&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'"
+          Command="ln -sf &quot;$(AssetsDir)&quot; &quot;$(OutputPath)/assets&quot;" />
+  </Target>
+
+  <!-- ── Package release zip ───────────────────────────────────────────────── -->
+  <!--
+    Only runs in Release mode.
+    Output: Releases/$(ModId)_$(ModVersion)_vs$(VSVersion).zip
+    The zip contains only the files the mod needs — no .pdb or .deps.json.
+  -->
+  <Target Name="ZipRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(ProjectDir)/Releases" />
+    <Delete Files="$(ProjectDir)/Releases/$(ModId)_$(ModVersion)_vs$(VSVersion).zip" />
+
+    <Delete Files="$(OutputPath)/$(ModId).pdb" />
+    <Delete Files="$(OutputPath)/$(ModId).deps.json" />
+
+    <Exec Condition="'$(OS)' == 'Windows_NT'"
+          Command="powershell -Command &quot;Compress-Archive -Path '$(OutputPath)\*' -DestinationPath '$(ProjectDir)\Releases\$(ModId)_$(ModVersion)_vs$(VSVersion).zip' -Force&quot;" />
+    <Exec Condition="'$(OS)' != 'Windows_NT'"
+          Command="cd '$(OutputPath)' &amp;&amp; zip -r '$(ProjectDir)/Releases/$(ModId)_$(ModVersion)_vs$(VSVersion).zip' ." />
+  </Target>
+
+</Project>

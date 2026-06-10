@@ -1,0 +1,38 @@
+<Project>
+  <!--
+    ══════════════════════════════════════════════════════════════════════════
+    localSettings.props  —  machine-specific paths (NOT committed to git)
+    ══════════════════════════════════════════════════════════════════════════
+    Copy this file to Properties/localSettings.props and fill in your paths.
+
+    Each .csproj reads the version-specific properties below (e.g.
+    GameDirectory_1_22) in its own path-resolution block, so you can have
+    multiple game installs side-by-side without touching any global variable.
+
+    You only need to fill in the sections for the versions you have installed.
+    Leaving a property blank falls through to the VINTAGE_STORY environment
+    variable, or to the vendored DLL in deps/ as a last resort.
+
+    ── To add a new game version (e.g. 1.23) ────────────────────────────────
+      1. Add GameDirectory_1_23 / OverhaulLibDir_1_23 here.
+      2. Copy COHandbookDecimalFix_1.22.csproj → COHandbookDecimalFix_1.23.csproj and
+         update VSVersion, TargetFramework, and the Dependencies version.
+      3. Drop the matching overhaullib DLL into deps/overhaullib-1.23/.
+    ══════════════════════════════════════════════════════════════════════════
+  -->
+  <PropertyGroup>
+
+    <!-- ── Vintage Story 1.22 ─────────────────────────────────────────────── -->
+    <!-- Windows: C:\Program Files\Vintagestory   Linux: ~/vintagestory_1.22   -->
+    <GameDirectory_1_22></GameDirectory_1_22>
+    <!-- Leave blank → uses $(GameDirectory_1_22)/Mods/overhaullib            -->
+    <OverhaulLibDir_1_22></OverhaulLibDir_1_22>
+
+    <!-- ── Vintage Story 1.21 ─────────────────────────────────────────────── -->
+    <!-- Windows: C:\Program Files\Vintagestory_1.21  Linux: ~/vintagestory_1.21 -->
+    <GameDirectory_1_21></GameDirectory_1_21>
+    <!-- Leave blank → uses $(GameDirectory_1_21)/Mods/overhaullib            -->
+    <OverhaulLibDir_1_21></OverhaulLibDir_1_21>
+
+  </PropertyGroup>
+</Project>
