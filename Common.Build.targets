@@ -31,6 +31,15 @@
   -->
   <PropertyGroup>
     <OverhaulLibDir Condition="'$(OverhaulLibDir)' == ''">$(GameDirectory)/Mods/overhaullib</OverhaulLibDir>
+
+    <!--
+      Overridable in each .csproj BEFORE this import. Defaults preserve the old
+      behaviour (assembly + filename both "overhaullib"). In VS 1.22 the
+      CombatOverhaul.* API moved into the OverhaullibLegacyCompat assembly, so the
+      1.22 csproj overrides these to reference OverhaullibLegacyCompat.dll instead.
+    -->
+    <OverhaulLibAssemblyName Condition="'$(OverhaulLibAssemblyName)' == ''">overhaullib</OverhaulLibAssemblyName>
+    <OverhaulLibDll Condition="'$(OverhaulLibDll)' == ''">$(OverhaulLibDir)/overhaullib.dll</OverhaulLibDll>
   </PropertyGroup>
 
   <!-- ── Assembly references ───────────────────────────────────────────────── -->
@@ -38,7 +47,7 @@
     <Reference Include="VintagestoryAPI" HintPath="$(GameDirectory)/VintagestoryAPI.dll"     Private="false" />
     <Reference Include="VSEssentials"    HintPath="$(GameDirectory)/Mods/VSEssentials.dll"   Private="false" />
     <Reference Include="0Harmony"        HintPath="$(GameDirectory)/Lib/0Harmony.dll"         Private="false" />
-    <Reference Include="overhaullib"     HintPath="$(OverhaulLibDir)/overhaullib.dll"          Private="false" />
+    <Reference Include="$(OverhaulLibAssemblyName)" HintPath="$(OverhaulLibDll)"                 Private="false" />
     <!-- Any extra DLLs dropped into the /external folder are picked up automatically -->
     <Reference Include="$(ExternalLibDir)/**/*.dll" Private="false"
                Condition="Exists('$(ExternalLibDir)')" />

@@ -27,7 +27,7 @@
 
   <!-- ── Mod dependency (controls modinfo.json "dependencies" block) ────────── -->
   <ItemGroup>
-    <Dependencies Include="overhaullib" Version="2.0.3" />
+    <Dependencies Include="overhaulliblegacycompat" Version="" />
   </ItemGroup>
 
   <!--
@@ -47,6 +47,15 @@
     <OverhaulLibDir Condition="'$(OverhaulLibDir_1_22)' != ''">$(OverhaulLibDir_1_22)</OverhaulLibDir>
     <!-- Final fallback: bundled DLL in repo -->
     <OverhaulLibDir Condition="'$(OverhaulLibDir)' == ''">$(MSBuildProjectDirectory)/deps/overhaullib-1.22</OverhaulLibDir>
+
+    <!--
+      VS 1.22: the CombatOverhaul.* API now ships in the OverhaullibLegacyCompat
+      assembly. Reference that DLL directly — its embedded assembly name is what
+      gets recorded in the AssemblyRef, so the runtime binds to the
+      overhaulliblegacycompat mod instead of overhaullib 2.x.
+    -->
+    <OverhaulLibAssemblyName>OverhaullibLegacyCompat</OverhaulLibAssemblyName>
+    <OverhaulLibDll>$(OverhaulLibDir)/OverhaullibLegacyCompat.dll</OverhaulLibDll>
   </PropertyGroup>
 
   <!-- ── Shared build logic ────────────────────────────────────────────────── -->
